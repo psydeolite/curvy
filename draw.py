@@ -1,16 +1,20 @@
 from display import *
 from matrix import *
-import math
+from math import cos, sin
 
 def add_circle( points, cx, cy, cz, r, step ):
     s=step
     x0=cx+r
     y0=cy
+    x=0
+    y=0
     while (s<1):
-        t=2*math.pi*step
+        #print x
+        #print y
+        t=2*math.pi*s
         x=r*cos(t)+cx
         y=r*sin(t)+cy
-        add_edge(points,x0,y0,0,x1,y1,0)
+        add_edge(points,x0,y0,0,x,y,0)
         x0=x
         y0=y
         s+=step
@@ -20,29 +24,41 @@ def add_curve( points, x0, y0, x1, y1, x2, y2, x3, y3, step, curve_type ):
     s=step
     x=x0
     y=y0
-    cox=generate_curve_coeffs(x0,x1,x2,x3,curve_type)
-    coy=generate_curve_coeffs(y0,y1,y2,y3,curve_type)
+    cox=generate_curve_coefs(x0,x1,x2,x3,curve_type)
+    coy=generate_curve_coefs(y0,y1,y2,y3,curve_type)
+    i=0
+    fx=0
+    fy=0
     while (s<1):
         #evaluate x part of polynomial
+        #print 'x: '+str(x)
+        #print 'y: '+str(y)
+        #print 'fx: '+str(fx)
+        #print 'fy: '+str(fy)
         i=3
+        fx=0
+        fy=0
         while (i>=0):
-            fx+=pow(x,i)*fx[3-i]
-            fy+=pow(y,i)*fy[3-i]
+            fx+=pow(s,i)*cox[0][3-i]
+            fy+=pow(s,i)*coy[0][3-i]
             i-=1
+            #print 'in'
         add_edge(points,x,y,0,fx,fy,0)
         x=fx
         y=fy
-        #evaluate y part of polynomial
-        #add edge
-        #increment stuff
-    #pass
+        s+=step
+        #print 'out'
+    #print 'AY'
 
 def draw_lines( matrix, screen, color ):
+    #print matrix
+    #print 'draw_lines'
     if len( matrix ) < 2:
         print "Need at least 2 points to draw a line"
         
     p = 0
     while p < len( matrix ) - 1:
+        #print 'while'
         draw_line( screen, matrix[p][0], matrix[p][1],
                    matrix[p+1][0], matrix[p+1][1], color )
         p+= 2
@@ -80,6 +96,7 @@ def scale(matrix,x,y,z):
     return m
 
 def draw_line( screen, x0, y0, x1, y1, color ):
+    #print 'draw'
     dx = x1 - x0
     dy = y1 - y0
     if dx + dy < 0:
@@ -129,6 +146,7 @@ def draw_line( screen, x0, y0, x1, y1, color ):
         x = x0
         y = y0
         while x <= x1:
+            #print 'a'
             plot(screen, color, x, y)
             if d > 0:
                 y = y + 1
